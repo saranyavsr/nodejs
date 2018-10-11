@@ -39,11 +39,11 @@ var db_pwd  = "cmpe281" ;
 var db_name = "test" ;
 */
 
-var db_host = (process.env.mongodb_host || "ds043220.mongolab.com" ) ;
-var db_port = (process.env.mongodb_port || "43220" ) ;
-var db_user = (process.env.mongodb_user || "user" ) ;
-var db_pwd  = (process.env.mongodb_pwd  || "pwd" ) ;
-var db_name = (process.env.mongodb_name || "db" ) ;
+var db_host = (process.env.mongodb_host || "ds229373.mlab.com" ) ;
+var db_port = (process.env.mongodb_port || "29373" ) ;
+var db_user = (process.env.mongodb_user || "cmpe281" ) ;
+var db_pwd  = (process.env.mongodb_pwd  || "cmpe281" ) ;
+var db_name = (process.env.mongodb_name || "gumball" ) ;
    
 
 var db = new DB(db_name,
