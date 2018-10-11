@@ -12,145 +12,6 @@ Model# M102988
 Serial# 1234998871109
 
 **/
-/*
-var machine = "https://pnguyen-goapi.herokuapp.com/gumball";
-var endpoint = "https://pnguyen-goapi.herokuapp.com/order";
-
-
-var fs = require('fs');
-var express = require('express');
-var connect = require('connect');
-var Client = require('node-rest-client').Client;
-
-var app = express();
-
-//var connect = require('connect');
-app.use(connect.cookieParser()) 
-app.use(express.urlencoded());
-app.use(express.json());
-
-app.use("/images", express.static(__dirname + '/images'));
-
-var page = function( req, res, state ) {
-    var body = fs.readFileSync('./gumball.html');
-    res.setHeader('Content-Type', 'text/html');
-    res.writeHead(200);
-
-    var client = new Client();
-            var count = "";
-            client.get( machine, 
-                function(data, response_raw){
-                    console.log(data);
-                    jsdata = JSON.parse(data)
-                    for(var key in jsdata) {
-                        console.log( "key:" + key + ", value:" + jsdata[key] );
-                    }                   
-                    count = jsdata.CountGumballs
-                    console.log( "count = " + count ) ;
-                    var msg =   "\n\nMighty Gumball, Inc.\n\nNodeJS-Enabled Standing Gumball\nModel# " + 
-                                jsdata.ModelNumber + "\n" +
-                                "Serial# " + jsdata.SerialNumber + "\n" +
-                                "State: " + state + "\n" + 
-                                "Inventory: " + count + "\n" ;
-                    var html_body = "" + body ;
-                    var html_body = html_body.replace("{message}", msg );
-                    var html_body = html_body.replace(/id="state".*value=".*"/, "id=\"state\" value=\""+state+"\"") ;
-                    res.end( html_body );
-            });
-}
-
-var order = function(req, res) {
-    var client = new Client();
-            var count = 0;
-            client.get( machine, 
-                function(data, response_raw) {
-                    jsdata = JSON.parse(data)
-                    count = jsdata.CountGumballs ;
-                    console.log( "count before = " + count ) ;
-                    if ( count > 0 )
-                        count-- ;
-                    console.log( "count after = " + count ) ;
-                    var args = {
-                        data: {  "CountGumballs": count },
-                        headers:{"Content-Type": "application/json"} 
-                    };
-                    client.put( machine, args,
-                        function(data, response_raw) {
-                            console.log(data);
-                            page( req, res, "no-coin" ) ;
-                        } 
-                    );
-            });
-}
-
-var handle_post = function (req, res) {
-    console.log( "Post: " + "Action: " +  req.body.event + " State: " + req.body.state + "\n" ) ;
-    var state = "" + req.body.state ;
-    var action = "" + req.body.event ;
-    if ( action == "Insert Quarter" ) {
-        if ( state == "no-coin" )
-            page( req, res, "has-coin" ) ;
-        else
-            page( req, res, state ) ;
-            
-    }
-    else if ( action == "Turn Crank" ) {
-        if ( state == "has-coin" ) {
-            order(req, res) ;
-        }
-        else
-             page( req, res, state ) ;
-    }    
-}
-
-var handle_get = function (req, res) {
-    console.log( "Get: ..." ) ;
-    page( req, res, "no-coin" ) ;
-}
-
-app.set('port', (process.env.PORT || 8080));
-
-app.post("*", handle_post );
-app.get( "*", handle_get ) ;
-
-console.log( "Server running on Port 8080..." ) ;
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
-
-
-*/
-
-
-
-/**
-
-Mighty Gumball, Inc.
-Version 4.0
-
-- Removed REST Client Approach to Data Access
-- Using MongoDB with Async Framework for Data Management
-- Handlebars Page Templates
-- Client State Validation using HMAC Key-Based Hash 
-
-NodeJS-Enabled Standing Gumball
-Model# M102988
-Serial# 1234998871109
-
-**/
-
-
-// added in v4: mongodb, async
-// http://mongodb.github.io/node-mongodb-native/contents.html
-
-// added in v3: handlebars
-// https://www.npmjs.org/package/express3-handlebars
-// npm install express3-handlebars
-
-// added in v2: crypto
-// crypto functions:  http://nodejs.org/api/crypto.html
-
 
 var crypto = require('crypto');
 var fs = require('fs');
@@ -170,14 +31,6 @@ var DB = require('mongodb').Db,
     DB_Server = require('mongodb').Server,
     async = require('async') ;
 
-
-var db_host = "ds043220.mongolab.com" ;
-var db_port = "43220" ;
-var db_user = "user" ;
-var db_pwd  = "pwd" ;
-var db_name = "db" ;
-
-
 /*
 var db_host = "localhost" ;
 var db_port = "27017" ;
@@ -185,6 +38,13 @@ var db_user = "cmpe281" ;
 var db_pwd  = "cmpe281" ;
 var db_name = "test" ;
 */
+
+var db_host = (process.env.mongodb_host || "localhost" ) ;
+var db_port = (process.env.mongodb_port || "27017" ) ;
+var db_user = (process.env.mongodb_user || "cmpe281" ) ;
+var db_pwd  = (process.env.mongodb_pwd  || "cmpe281" ) ;
+var db_name = (process.env.mongodb_name || "test" ) ;
+   
 
 var db = new DB(db_name,
                 new DB_Server( db_host, db_port,
@@ -199,7 +59,7 @@ db_init = function (callback) {
             console.log("INIT: STEP 1. Open MongoDB...");
             db.open(cb);
         },
-        // 2. authenticate       
+        // 2. authenticate      
         function (result, cb) {
             console.log("INIT: STEP 2. Authenticate...");
             db.authenticate(db_user, db_pwd, function(err, res) {
@@ -375,7 +235,6 @@ var handle_get = function (req, res, next) {
 
 
 /*  Handlebars Test using Home template 
-
 app.get('/', function (req, res, next) {
     res.render('home', {
         showTitle: true,
@@ -385,7 +244,6 @@ app.get('/', function (req, res, next) {
         }
     });
 });
-
 */
 
 app.get('/', handle_get ) ;
@@ -406,7 +264,6 @@ db_init(function (err, results) {
         });
     }
 });
-
 
 
 /**
